@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Membuat Canvas</title>
+</head>
+<body>
+    <canvas id="world" width="500" height="500" style="border: 1px solid black;"></canvas>
+
+    <script>
+        // Inisialisasi Canvas
+        let canvas = document.getElementById("world");
+        let context = canvas.getContext("2d");
+
+        // Import assets
+        let bird = new Image();
+        bird.src = "bluebird.png";
+
+        let kiw = new Audio();
+        kiw.src = "kiw.mp3";
+
+        // State
+        let g = 0;
+        let xBird = 0;
+        let yBird = canvas.height / 2 - 25;
+        let wBird = 30;
+        let hBird = 30;
+        let kalah = false;
+
+        // Variabel pipa
+        let xPipa = canvas.width;
+        let lebarPipa = 50;
+        let yPipaBawah = 250; // Sesuaikan dengan posisi pipa bawah
+        let tinggiPipaBawah = 150; // Sesuaikan dengan tinggi pipa bawah
+        let kecepatanPipa = 3;
+
+        // Skor
+        let score = 0;
+
+        // Fungsi untuk menampilkan game over dan skor
+        function gameover() {
+            alert("Game Over! Skor Anda: " + score);
+            resetGame();
+        }
+
+        // Fungsi untuk mereset permainan
+        function resetGame() {
+            g = 0;
+            xBird = 0;
+            yBird = canvas.height / 2 - 100;
+            wBird = 30;
+            hBird = 30;
+            score = 0;
+            generatePipa();
+        }
+
+        // Fungsi untuk menghasilkan pipa baru
+        function generatePipa() {
+            xPipa = canvas.width;
+            // Sesuaikan posisi dan tinggi pipa sesuai kebutuhan
+            yPipaBawah = Math.floor(Math.random() * (canvas.height - 300)) + 100;
+            tinggiPipaBawah = 150;
+        }
+
+        window.addEventListener("keydown", function(event) {
+            if (event.keyCode == 32) {
+                g = g - 10;
+                kiw.pause();
+                kiw.currentTime = 0;
+                kiw.play();
+            }
+        });
+
+        // Membuat loop interval untuk animasi
+        window.setInterval(function() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            g = g + 1;
+
+            context.drawImage(bird, xBird, yBird, wBird, hBird);
+
+            yBird = yBird + g;
+
+            if (yBird >= canvas.height) {
+                gameover();
+            }
+            if (yBird < 0) {
+                yBird = 0;
+                g = 0;
+            }
+
+            xPipa = xPipa - kecepatanPipa;
+
+            // Pipa atas
+            context.fillStyle = "green";
+            context.fillRect(xPipa, 0, lebarPipa, yPipaBawah);
+            context.fillStyle = "black";
+            context.strokeRect(xPipa, 0, lebarPipa, yPipaBawah);
+
+            // Pipa bawah
+            context.fillStyle = "green";
+            context.fillRect(xPipa, yPipaBawah + tinggiPipaBawah, lebarPipa, canvas.height - (yPipaBawah + tinggiPipaBawah));
+            context.fillStyle = "black";
+            context.strokeRect(xPipa, yPipaBawah + tinggiPipaBawah, lebarPipa, canvas.height - (yPipaBawah + tinggiPipaBawah));
+
+            if (xBird + wBird >= xPipa && xBird <= xPipa + lebarPipa) {
+                if (yBird <= yPipaBawah || yBird + hBird >= yPipaBawah + tinggiPipaBawah) {
+                    gameover();
+                }
+            }
+
+            // Cek jika pipa telah dilewati
+            if (xBird > xPipa + lebarPipa) {
+                score++;
+                generatePipa();
+            }
+
+            // Menampilkan skor di canvas
+            context.font = "20px Arial";
+            context.fillStyle = "black";
+            context.fillText("Skor: " + score, 10, 20);
+
+        }, 1000 / 30);
+
+        // Pertama kali memulai permainan
+        generatePipa();
+
+    </script>
+</body>
+</html>

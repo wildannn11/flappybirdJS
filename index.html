@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas</title>
+</head>
+<body>
+    <canvas id="world" width="500" height="400" style="border: 1px solid black;"></canvas>
+    <script>
+        // Inisialisasi canvas
+        let canvas = document.getElementById('world');
+        let context = canvas.getContext('2d');
+
+        function createKotak(x, y, width, height) {
+            context.fillStyle = "blue";
+            context.strokeRect(x, y, width, height);
+            context.fillRect(x, y, width, height);
+        }
+
+        // Kotak pertama (bergerak otomatis)
+        let width1 = 50;
+        let height1 = 40;
+        let xAwal1 = canvas.width / 2 - width1 / 2;
+        let yAwal1 = 0;
+        let speedY1 = 3; // Kecepatan jatuh
+
+        // Kotak kedua (digerakkan ke kiri dan ke kanan)
+        let width2 = 120;
+        let height2 = 30;
+        let xAwal2 = canvas.width / 2 - width2 / 2;
+        let yAwal2 = canvas.height - height2;
+        let speedX2 = 5; // Kecepatan horizontal
+
+        // Status pergerakan kotak kedua
+        let isMovingLeft2 = false;
+        let isMovingRight2 = false;
+
+        // Mengecek tombol keyboard yang ditekan
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                isMovingLeft2 = true;
+            }
+            if (event.key === 'ArrowRight') {
+                isMovingRight2 = true;
+            }
+        });
+
+        // Mengecek tombol keyboard yang dilepas
+        document.addEventListener('keyup', function(event) {
+            if (event.key === 'ArrowLeft') {
+                isMovingLeft2 = false;
+            }
+            if (event.key === 'ArrowRight') {
+                isMovingRight2 = false;
+            }
+        });
+
+        function animate() {
+            context.fillStyle = "gray"; // Ganti warna latar belakang
+            context.fillRect(0, 0, canvas.width, canvas.height); // Gambar latar belakang abu-abu
+
+            // Gerakkan kotak pertama secara otomatis
+            yAwal1 += speedY1;
+
+            // Batasan agar kotak pertama tidak menembus atau mati jika tidak ditangkap oleh kotak kedua
+            if (yAwal1 + height1 > yAwal2 && xAwal1 + width1 > xAwal2 && xAwal1 < xAwal2 + width2) {
+                yAwal1 = 0;
+            }
+
+            // Pergerakan kotak kedua ke kiri dan ke kanan dengan batasan agar tidak menembus ke kiri dan kanan
+            if (isMovingLeft2 && xAwal2 > 0) {
+                xAwal2 -= speedX2;
+            }
+            
+            if (isMovingRight2 && xAwal2 + width2 < canvas.width) {
+                xAwal2 += speedX2;
+            }
+
+            createKotak(xAwal1, yAwal1, width1, height1);
+            createKotak(xAwal2, yAwal2, width2, height2);
+
+            requestAnimationFrame(animate); // Teruskan animasi
+        }
+
+        animate();
+    </script>
+</body>
+</html>
